@@ -5,14 +5,17 @@ const cors = require("cors");
 const server = http.createServer(app);
 require("dotenv").config();
 const PORT = process.env.PORT;
+const cookieParser = require("cookie-parser");
 
 const corsOptions = {
   origin: "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  credentials: true
 };
 
+app.use(express.json());
 app.use(cors(corsOptions));
-app.use(cors());
+app.use(cookieParser());
 const routes = require("./routes/index")
 app.use("/",routes);
 
