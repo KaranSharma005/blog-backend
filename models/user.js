@@ -26,10 +26,8 @@ const userSchema = new mongoose.Schema({
         type : String
     },
     isAdmin : {
-        type : Boolean
-    },
-    bio : {
-        type : String
+        type : Boolean,
+        default : false,
     },
     resetToken : {
         type : String
