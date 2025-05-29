@@ -34,7 +34,13 @@ const userSchema = new mongoose.Schema({
     },
     expiryTime : {
         type : Date,
-
+    },
+    rollNo : {
+        type : String,
+    },
+    active : {
+        type : Boolean,
+        default : true,
     }
 },{ timestamps: true });
 
