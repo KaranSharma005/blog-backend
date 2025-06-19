@@ -57,7 +57,7 @@ router.post("/signin", async (req, res) => {
     const user = await userModel.findOne({ email: email }); //extract user details from mongo
     const isMatch = await bcrypt.compare(password, user.password);
     let checkAdmin = false;
-    console.log(user);
+    const name = user.name;
 
     if (user.email == ADMIN_MAIL && isMatch) {
       checkAdmin = true;
@@ -71,17 +71,16 @@ router.post("/signin", async (req, res) => {
     const token = jwt.sign(
       {
         email,
-        password,
+        name
       },
       SECRET_KEY
     );
-    console.log(token);
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
-      maxAge: 3600,
+      maxAge: 3600 * 1000,
     });
 
     const sanitizedUser = {
@@ -103,6 +102,7 @@ router.post("/signin", async (req, res) => {
 
 router.get("/auth", async (req, res) => {
   const token = req.cookies?.token;
+  console.log(token);
 
   if (!token) {
     return res.status(401).json({
@@ -111,7 +111,7 @@ router.get("/auth", async (req, res) => {
     });
   }
 
-  jwt.verify(token, SECRET_KEY, (err, user) => {
+  jwt.verify(token, SECRET_KEY, async(err, user) => {
     if (err) {
       console.error("JWT Verification Error:", err);
       return res.status(403).json({
@@ -119,13 +119,22 @@ router.get("/auth", async (req, res) => {
         message: "Forbidden: Invalid token",
       });
     }
-
-    // ✅ Token is valid
+    const userData = await userModel.findOne({ email: user?.email });
+    
     return res.status(200).json({
       loggedIn: true,
-      user,
+      userData,
     });
   });
 });
+
+router.delete("/logout",(req, res) => {
+  res.clearCookie("token");
+  
+  return res.status(200).json({
+    success : true,
+    msg : "Logged out successfully"
+  })
+})
 
 module.exports = router;
